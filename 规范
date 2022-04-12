@@ -1,0 +1,12 @@
+名称规范：
+FILE->New Project：项目名最好是小写
+src->New package：包名最好是多个类名的集成，如果是一个包则可以设置为和项目名同名
+package：New Class：类名采用驼峰命名法，HelloWorld
+
+规定要求：
+1.一个.java文件（java类）只能有一个public class，而且类名必须和文件名同名！！！
+2.建议一个java文件只放一个class，就是那个public class，其余的class尽量不要放在一起。
+3.main函数是JVM执行.class文件的入口，一定是psvm即 public static void mian（String args[]）{}
+4.main函数不依赖于当前publc class的存在，虽然必须放在一个public class里面，但是和这个public class无关，放在哪里都可以。
+5.String args[]是固定要求，Java区分大小写，不要写出string。args[]里的东西可以自定义设置。
+6.一个class最多只能有一个main函数，类可以没有main函数，没有main函数的类就不能主动执行，只能被别人调用。
