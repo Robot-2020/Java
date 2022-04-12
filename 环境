@@ -1,0 +1,21 @@
+JDK全称为Java Development Kit，顾名思义是java开发工具包，是程序员使用java语言编写java程序所需的开发工具包。
+
+JRE全称为Java Runtime Environment，顾名思义是java运行时的环境，包含了java虚拟机，java基础类库，是使用java语言编写的程序运行所需要的软件环境。
+
+JDK包含了JRE，同时还包含了编译java源码的编译器javac，还包含了很多java程序调试和分析的工具（JConsole，Web Services等工具软件），还包含了Java基础的类库（即Java API 包括rt.jar）。
+
+JVM(Java Virtual Machine)就是我们常说的java虚拟机，它是整个java实现跨平台的最核心的部分，所有的java程序会首先被编译为.class的类文件，这种类文件可以在虚拟机上执行。
+
+程序员JDK（调用JAVA API）开发.java文件（源代码）--->JDK中的编译程序（javac）--->.class文件（字节码）--->JVM执行编译器放在.class文件中的字节码。
+
+只有JVM还不能成class的执行，因为在解释class的时候JVM需要调用解释所需要的类库lib，而jre包含lib类库。在JDK下面的的jre目录里面有两个文件夹bin和lib,在这里可以认为bin里的就是jvm，lib中则是jvm工作所需要的类库，而jvm和 lib和起来就称为jre。
+
+
+命令行的编译与运行:
+1.编译：javac : .java ---> .class
+javac Welcome.java
+javac编译器需要一个文件名 （Welcomejava)。
+
+2.运行：java ：.class
+java Welcome
+java虚拟机运行程序时，只需要指定类名 （Welcome),不要带扩展名 .java 或 .class
