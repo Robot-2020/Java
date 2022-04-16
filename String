@@ -57,8 +57,12 @@ String word = name.concat("x").concat("yz");
 执行append（）函数
 实际是字符数组的扩充，不会创建
 StringBuffer：线程安全，StringBuilder线程不安全
+StringBuilder builder = new StringBuilderO;
+builder.append(ch); // appends a single character
+bui1der.append(str); // appends a string
+String completedString = builder.toStringO;
 
-(4)​StringJoiner
+(4)StringJoiner
 .add：增加/拼接	.toString()：转换为字符串
 
 String test="javaandpython"; 
