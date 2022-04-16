@@ -1,6 +1,8 @@
+String
+
 一：存放位置：
 String类是我们平常项目中使用频率非常高的一种对象类型，jvm为了提升性能和减少内存开销，避免字符的重复创建，其维护了一块特殊的内存空间，即字符串池，当需要使用字符串时，先去字符串池中查看该字符串是否已经存在，如果存在，则可以直接使用，如果不存在，初始化，并将该字符串放入字符创常量池中。
-在 JDK 1.7 之后(包括1.7)，字符串常量池已经从方法区移到了堆中。
+在 JDK 1.7 之后，字符串常量池已经从方法区移到了堆中。
 两种创建方法的区别：
 1. String str1= “abc”；
  在编译期，JVM会去常量池来查找是否存在“abc”。
@@ -12,15 +14,15 @@ String类是我们平常项目中使用频率非常高的一种对象类型，jv
 在编译阶段JVM先去常量池中查找是否存在“abc”。
 如果存在：
 （1）首先会在堆中创建一个 s2 变量的对象引用，将堆中对象引用的地址返回给str2这个引用；
-（2）然后将堆中这个对象引用指向字符串常量池中的已经存在的常量；
+（2）然后将堆中这个对象引用指向字符串常量池中的已经存在的常量。
 如果不存在：
-  则直接在堆中创建一个字符串对象然后返回给变量。
+（1）则在常量池中创建一个"abc"对象，然后在堆中创建常量池”abc“的对象引用；
+（2）将堆中创建对象引用然后返回给str2这个引用。
 
 intern() 池化
-那什么时候会放到字符串常量池呢，就是在使用 intern() 方法之后。
-（1）如果当前字符串内容存在于字符串常量池，那直接返回此字符串在常量池的引用；
-（2）如果之前不在字符串常量池中，那么在常量池创建一个引用并且指向堆中已存在的字符串，然后返回常量池中的地址。
-JDK 1.7 之后，字符串常量池不一定就是存字符串对象的，还有可能存储的是一个指向堆中地址的引用（情况（2））。
+那什么时候会指向字符串常量池呢，就是在使用 intern() 方法之后。
+String str3 = str2.intern();
+执行intern()之后，str3将不会指向str2所指向的堆中的对象引用，而是直接指向常量池中的对象。
 
 public class Test {
 	public static void main(String[] args) {
@@ -40,3 +42,125 @@ public class Test {
 		System.out.println(s3 == s4); // 【6】 true
 	}
 }
+
+二：混淆点
+1.字符串的拼接
+(1)"+"
+String name = "you"+"th";	[语法糖]
+实际执行的是StringBuilder.append（）
+
+(2)concat
+String word = name.concat("x").concat("yz");
+实际是创建新的String对象
+
+(3)StringBuilder&StringBuffer
+执行append（）函数
+实际是字符数组的扩充，不会创建
+StringBuffer：线程安全，StringBuilder线程不安全
+
+(4)​StringJoiner
+.add：增加/拼接	.toString()：转换为字符串
+
+String test="javaandpython"; 
+String str1="java"; 
+String str2="and"; 
+String str3="python"; 
+//输出
+System. out. println(test=="java"+"and"+"python");//true
+System. out. println(test==str1 + str2 + str3);//false
+
+根据以上反编译代码，若是字符串引用相加，创建几个对象？
+4个，“java”,“and”,“python”,"javaandpython"的StringBuilder对象在堆内存中。
+注意这是原因：//System. out. println(test==str1 + str2 + str3)，为false的原因。
+
+
+2.字符串拼接创建多少个对象？
+
+String str = "abc";//在常量池中创建abc
+String str1 = "abcd";//在常量池中创建abcd
+String str2 = str+"d";//拼接字符串，此时会在堆中新建一个abcd的对象，因为str2编译之前是未知的
+虽然str在上面已经定义了，但是在编译时认为str仍是一个引用类型变量，所以此时就会把str2认为是以new String()方式来创建的。
+等来到内存中呢，就按照new String()这种方式去创建str2，自然堆内存中就会开辟空间，然后创建对象，接着再把空间的地址值返回给str2。
+
+String str3 = "abc"+"d";//拼接之后str3还是abcd，所以还是会指向字符串常量池的内存地址
+System.out.println(str1==str2);//false
+System.out.println(str1==str3);//true
+
+第一种情况（常量相加）
+String str = “a” + “b” + "c”；
+对于常量，编译时就直接存储它们的字面值而不是它们的引用，因此编译完之后就是“abc”，
+开始去常量池查找“abc”，如果不存在，则只创建一个"abc"对象。
+
+第二种情况（变量相加）
+String a = "hello"
+String b = "world"
+String c = a+b;
+String d = "helloworld"
+创建了几个对象？ 4个对象+1个对象引用
+
+先在常量池中创建"hello"（1），地址指向str1, 再创建“world” （2），指向str2。
+对于c，先创建StringBuilder（或 StringBuffer）对象存放在堆中（3），通过 append 连接得到"helloworld"存放在常量池中（4）,
+再调用 toString() 转换得到指向"helloworld"的 new String（）变量的地址传给c。
+c==d ? //false,各自指向的地址不一样，StringBuilder创建的对象引用在堆中，直接赋值的在常量池中。
+
+String c="a"+new String("b");这一条语句会产生多少个对象？
+1.创建StringBuilder对象（1）
+2.创建常量”a“（2）
+3.创建String对象（3）
+4.创建常量”b“（4）
+5.执行StringBuilder.append（）方法，创建对象“ab”。
+6.StringBuilder执行toString方法，返回堆中new String（）对象地址给String对象引用。
+
+2.==和equals
+1）对于==，比较的是值是否相等
+
+            如果作用于基本数据类型的变量，则直接比较其存储的 “值”是否相等；
+
+　　　　如果作用于引用类型的变量，则比较的是所指向的对象的地址
+
+2）对于equals方法，注意：equals方法不能作用于基本数据类型的变量，equals继承Object类，比较的是是否是同一个对象
+
+　　　　如果没有对equals方法进行重写，则比较的是引用类型的变量所指向的对象的地址；
+
+　　　　诸如String、Date等类对equals方法进行了重写的话，比较的是所指向的对象的内容。
+
+
+3.“”和null
+String s = ""；	//表示为一个空串，s.length()==0。
+String s =null;	//表示没有任何对象与该变量关联。
+
+4.字符串是不可变的
+Java中字符串是不可变的，实际是final的。因此只能改变变量指向的位置，通过引用其他对象来改变该字符串。
+没有被引用的对象，JVM有垃圾回收机制来释放其资源。
+可以通过charAt（int index）来查看某一个位置的字符，但是不可以改变。
+
+三：API
+(1) char charAt(int index)
+(2) int compareTo(String other)
+(3) boolean equals(Object other)	boolean equalsIgnoreCase(String other)
+(4) boolean startsWith(String prefix)	boolean endsWith(String suffix)
+(5) int indexOf(String str)		int indexOf(String str, int fromIndex)
+(6) int lastindexOf(String str)	int lastIndexOf(String str, int fromIndex)
+(7) int length()
+(8) String substring(int beginIndex)	String substring(int beginIndex, int endIndex)
+(9) String toLowerCase()		String toUpperCase()
+(10) String trim()		
+
+String[] split(String separator, [limit])
+separator: 可选项。字符串或正则表达式对象，它标识了分隔字符串时使用的是一个还是多个字符。如果忽略该选项，返回包含整个字符串的单一元素数组。 
+limit: 参数控制separator应用的次数，因此影响所得数组的长度。
+        if(n>0)：则模式将被最多应用n-1次，数组的长度将不会大于n，而且数组的最后一项将包含所有超 出最后匹配的定界符的输入。
+        if(n<0)：那么模式将被应用尽可能多的次数，而且数组可以是任何长度。
+        if(n=0)：那么模式将被应用尽可能多的次数，数组可以是任何长度，并且结尾空字符串将被丢弃。
+(1)空字符串不被解析
+String str = "1,2,3,4,,,";
+String[] arr = str.split(",");		// arr={"1","2","3","4"}
+(2)最后一个被分隔符的分割字符串不为空时，其余空字符串可被解析。
+String str = "1,2,3,4,,,5";
+String[] arr = str.split(",");		// arr={"1","2","3","4","","","5"}
+(3)如果limit大于 0，则模式将被最多应用limit - 1 次
+String str = "1,2,3,4,,,";
+String[] s = str.split(",",1000);	// arr={"1","2","3","4","","",""}
+(4)如果limit小于0，也能全部解析
+String str = "1,2,3,4,,,";
+String[] s = str.split(",",-1);	// arr={"1","2","3","4","","",""}
